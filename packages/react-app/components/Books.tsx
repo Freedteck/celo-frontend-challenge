@@ -93,7 +93,8 @@ const Book = ({ id, setError, setLoading, clear }: any) => {
       }
       setLoading("Marking...");
       // Once the transaction is mined, purchase the Book via our marketplace contract buyBook function
-      await mark();
+      const res = await mark();
+      res.wait()
 
     } else {
       if (!unMark) {
@@ -103,18 +104,19 @@ const Book = ({ id, setError, setLoading, clear }: any) => {
       // Once the transaction is mined, purchase the Book via our marketplace contract buyBook function
       const res = await unMark();
       // Wait for the transaction to be mined
-      await res.wait();
+      res.wait()
     }
   };
 
   const handleRemove = async () => {
-      if (!remove) {
-        throw "Failed to mark this book as read";
-      }
-      setLoading("deleating Book...");
-      // Once the transaction is mined, purchase the Book via our marketplace contract buyBook function
-      await remove();
-    
+    if (!remove) {
+      throw "Failed to mark this book as read";
+    }
+
+    const res = await remove();
+    setLoading("Removing Book...");
+    // Once the transaction is mined, purchase the Book via our marketplace contract buyBook function
+    res.wait()
   }
   // const handleUnMark = async () => {
 
@@ -141,14 +143,14 @@ const Book = ({ id, setError, setLoading, clear }: any) => {
       // If there is an error, display the error message
     } catch (e: any) {
       console.log({ e });
-      setError(e?.reason || e?.message || "Something went wrong. Try again.");
+      toast.error(e?.reason || e?.message || "Something went wrong. Try again.");
       // Once the purchase is complete, clear the loading state
     } finally {
       setLoading(null);
     }
   };
 
-  // Define the markBook function that is called when the user clicks the purchase button
+  // Define the markBook function that is called when the user clicks the toggle button
   const markBook = async () => {
     setLoading("Approving ...");
     clear();
@@ -168,7 +170,7 @@ const Book = ({ id, setError, setLoading, clear }: any) => {
       // If there is an error, display the error message
     } catch (e: any) {
       console.log({ e });
-      setError(e?.reason || e?.message || "Something went wrong. Try again.");
+      toast.error(e?.reason || e?.message || "Something went wrong. Try again.");
       // Once the purchase is complete, clear the loading state
     } finally {
       setLoading(null);
@@ -185,7 +187,7 @@ const Book = ({ id, setError, setLoading, clear }: any) => {
         openConnectModal();
         return;
       }
-      // If the user is connected, call the handleMark function and display a notification
+      // If the user is connected, call the handleRemove function and display a notification
       await toast.promise(handleRemove(), {
         pending: "Removing Book...",
         success: "Book has been removed successfully",
@@ -194,7 +196,7 @@ const Book = ({ id, setError, setLoading, clear }: any) => {
       // If there is an error, display the error message
     } catch (e: any) {
       console.log({ e });
-      setError(e?.reason || e?.message || "Something went wrong. Try again.");
+      toast.error(e?.reason || e?.message || "Something went wrong. Try again.");
       // Once the purchase is complete, clear the loading state
     } finally {
       setLoading(null);
@@ -247,7 +249,7 @@ const Book = ({ id, setError, setLoading, clear }: any) => {
           >
             {Book.sold} sold
           </span>
-          <div className="absolute text-white top-0 z-10 p-1 start-0 bg-red-700 mt-4 ms-2 px-4 py-1 rounded hover:bg-red-800" onClick={removeBook} style={{cursor: "pointer"}}>
+          <div className="absolute text-white top-0 z-10 p-1 start-0 bg-red-700 mt-4 ms-2 px-4 py-1 rounded hover:bg-red-800" onClick={removeBook} style={{ cursor: "pointer" }}>
             Delete
           </div>
           {/* Show the Book image */}
